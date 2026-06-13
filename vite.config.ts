@@ -1,6 +1,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  nitro: true, // İŞTE BİZİ KURTARACAK SİHİRLİ KOD BU
   tanstackStart: {
     server: { entry: "server" },
   },
