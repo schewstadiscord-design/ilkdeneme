@@ -111,7 +111,7 @@ function useLocal<T>(key: string, fallback: T) {
 
 export function useBarbers() {
   const [list, setList] = useLocal<Barber[]>(K.barbers, [
-    { id: "b1", name: "Alperen Usta" },
+    { id: "b1", name: "Muhammet Ali Avcı" },
   ]);
   return {
     barbers: list,
