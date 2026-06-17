@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react"; // Hepsi burada birleşti
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,11 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { LogOut, Trash2, Pencil, Plus, Scissors } from "lucide-react";
-import { useEffect, useState } from "react";
-
-// ... (Diğer importlar)
-
-// Bu bileşeni en aşağıya, Dashboard'ın dışına veya AdminPanel.tsx'in sonuna ekle
+import {
+  SERVICES,
+  generateTimeSlots,
+  todayStr,
+  useAdmins,
+  useAppointments,
+  useBarbers,
+  useOverrides,
+  useSession,
+  type Appointment,
+} from "@/lib/store";
 function ClientOnly({ children }: { children: React.ReactNode }) {
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => { setHasMounted(true); }, []);
