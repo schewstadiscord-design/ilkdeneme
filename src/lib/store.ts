@@ -52,6 +52,17 @@ export function generateTimeSlots(): string[] {
   return slots;
 }
 
+export function isPastDate(date: string) { return date < todayStr(); }
+export function bookedSlots(appts: Appointment[], barberId: string, date: string) {
+  return new Set(appts.filter((a) => a.barberId === barberId && a.date === date).map((a) => a.time));
+}
+export function isSlotPast(date: string, time: string) {
+  if (date !== todayStr()) return false;
+  const [h, m] = time.split(":").map(Number);
+  const now = new Date();
+  return h < now.getHours() || (h === now.getHours() && m <= now.getMinutes());
+}
+
 export function useBarbers() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   useEffect(() => {
@@ -118,8 +129,8 @@ export function useAppointments() {
       await supabase.from("appointments").delete().eq("id", id);
       setAppointments((prev) => prev.filter((a) => a.id !== id));
     },
-  }; // Bu süslü parantez objeyi kapatıyor
-} // BU DA FONKSİYONU KAPATIYOR (EKSİK OLAN BUYDU)
+  }; // <--- BURASI KAPANIYOR
+} // <--- VE BURASI DA KAPANIYOR (EKSİK OLAN BUYDU)
 
 export function useOverrides() {
   const [overrides, setOverrides] = useState<DayOverride[]>([]);
