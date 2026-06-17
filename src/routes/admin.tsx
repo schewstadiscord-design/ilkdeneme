@@ -9,6 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { LogOut, Trash2, Pencil, Plus, Scissors } from "lucide-react";
+import { useEffect, useState } from "react";
+
+// ... (Diğer importlar)
+
+// Bu bileşeni en aşağıya, Dashboard'ın dışına veya AdminPanel.tsx'in sonuna ekle
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => { setHasMounted(true); }, []);
+  if (!hasMounted) return null;
+  return <>{children}</>;
+}
 import {
   SERVICES,
   generateTimeSlots,
@@ -162,21 +173,23 @@ function AppointmentsTab() {
         </div>
       )}
       {editing && (
-  <EditApptDialog
-    key={editing.id}
-    appt={editing}
-    onClose={() => setEditing(null)}
-    onSave={async (patch) => {
-  try {
-    await updateAppointment(editing.id, patch);
-    toast.success("Güncellendi");
-    setEditing(null);
-  } catch (err: any) {
-    console.error("Hata detayları:", err);
-    toast.error("Hata: " + (err.message || "İşlem başarısız"));
-  }
-}}
-  />
+  {editing && (
+  <ClientOnly>
+    <EditApptDialog
+      key={editing.id}
+      appt={editing}
+      onClose={() => setEditing(null)}
+      onSave={async (patch) => {
+        try {
+          await updateAppointment(editing.id, patch);
+          toast.success("Güncellendi");
+          setEditing(null);
+        } catch (err: any) {
+          toast.error("Hata: " + (err.message || "İşlem yapılamadı"));
+        }
+      }}
+    />
+  </ClientOnly>
 )}
     </Card>
   );

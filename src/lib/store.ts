@@ -140,14 +140,34 @@ export function useAppointments() {
       }
     },
     updateAppointment: async (id: string, patch: Partial<Appointment>) => {
-        // İleride admin panelinden randevu düzenleme istersen burayı kullanacağız
+      // Veritabanı için veriyi hazırla (barberId -> barber_id)
+      const dbPatch: any = { ...patch };
+      if (patch.barberId) {
+        dbPatch.barber_id = patch.barberId;
+        delete dbPatch.barberId;
+      }
+
+      // Güncelleme isteğini gönder
+      const { data, error } = await supabase
+        .from("appointments")
+        .update(dbPatch)
+        .eq("id", id)
+        .select();
+
+      if (error) {
+        console.error("Supabase Güncelleme Hatası:", error);
+        throw error;
+      }
+
+      if (data) {
+        const updated = { 
+          ...data[0], 
+          barberId: data[0].barber_id, 
+          createdAt: data[0].created_at 
+        };
+        setAppointments((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      }
     },
-    deleteAppointment: async (id: string) => {
-      await supabase.from("appointments").delete().eq("id", id);
-      setAppointments((prev) => prev.filter((a) => a.id !== id));
-    },
-  };
-}
 
 export function useOverrides() {
   const [overrides, setOverrides] = useState<DayOverride[]>([]);
