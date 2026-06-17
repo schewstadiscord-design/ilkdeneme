@@ -135,8 +135,8 @@ export function useAppointments() {
       const limitCount = pastAppts ? pastAppts.length : 0;
 
       if (limitCount >= 3) {
-        alert("Çok fazla randevu denemesi yaptınız. Lütfen 1 saat bekleyin.");
-        throw new Error("Çok fazla randevu denemesi yaptınız.");
+        alert("IP ADRESİNİZDEN ÇOK FAZLA DENEME YAPILDI. Lütfen 1 saat bekleyin.");
+        throw new Error("IP ADRESİNİZDEN ÇOK FAZLA DENEME YAPILDI.");
       }
 
       // 3. Randevuyu kaydet
