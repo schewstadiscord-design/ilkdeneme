@@ -6,25 +6,22 @@ export type Appointment = {
   id: string;
   name: string;
   phone: string;
-  barberId: string; 
+  barberId: string;
   service: string;
   price: number;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm
+  date: string;
+  time: string;
   note?: string;
   createdAt: string;
 };
 export type DayOverride = {
-  date: string; // YYYY-MM-DD
+  date: string;
   closed?: boolean;
-  openFrom?: string; // HH:mm
+  openFrom?: string;
 };
 export type AdminUser = { email: string; password: string };
 
-const K = {
-  admins: "sd_admins",
-  session: "sd_session",
-};
+const K = { admins: "sd_admins", session: "sd_session" };
 
 export const SERVICES = [
   { name: "Saç Tıraşı", price: 400 },
@@ -38,7 +35,6 @@ export const DEFAULT_ADMIN: AdminUser = {
   password: "TilkiAlperen11523455+",
 };
 
-// --- YARDIMCI FONKSİYONLAR ---
 export function todayStr() {
   const d = new Date();
   const y = d.getFullYear();
@@ -56,34 +52,11 @@ export function generateTimeSlots(): string[] {
   return slots;
 }
 
-export function isPastDate(date: string) {
-  return date < todayStr();
-}
-
-export function bookedSlots(appts: Appointment[], barberId: string, date: string) {
-  return new Set(
-    appts.filter((a) => a.barberId === barberId && a.date === date).map((a) => a.time)
-  );
-}
-
-export function isSlotPast(date: string, time: string) {
-  if (date !== todayStr()) return false;
-  const [h, m] = time.split(":").map(Number);
-  const now = new Date();
-  return h < now.getHours() || (h === now.getHours() && m <= now.getMinutes());
-}
-
-// --- SUPABASE BAĞLANTILI HOOK'LAR ---
-
 export function useBarbers() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
-
   useEffect(() => {
-    supabase.from("barbers").select("*").then(({ data }) => {
-      if (data) setBarbers(data);
-    });
+    supabase.from("barbers").select("*").then(({ data }) => { if (data) setBarbers(data); });
   }, []);
-
   return {
     barbers,
     addBarber: async (name: string) => {
@@ -105,12 +78,11 @@ export function useAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
-    // Sadece bugünden sonraki randevuları getir
     supabase.from("appointments").select("*").gte("date", todayStr()).then(({ data }) => {
       if (data) {
         const mapped = data.map((d) => ({
           ...d,
-          barberId: d.barber_id, // Veritabanındaki ismi arayüzün anladığı isme çeviriyoruz
+          barberId: d.barber_id,
           createdAt: d.created_at,
         }));
         setAppointments(mapped);
@@ -121,18 +93,8 @@ export function useAppointments() {
   return {
     appointments,
     addAppointment: async (a: Omit<Appointment, "id" | "createdAt">) => {
-      const dbData = {
-        name: a.name,
-        phone: a.phone,
-        date: a.date,
-        time: a.time,
-        service: a.service,
-        price: a.price,
-        barber_id: a.barberId,
-        note: a.note || null,
-      };
-      
-      const { data, error } = await supabase.from("appointments").insert([dbData]).select();
+      const dbData = { name: a.name, phone: a.phone, date: a.date, time: a.time, service: a.service, price: a.price, barber_id: a.barberId, note: a.note || null };
+      const { data } = await supabase.from("appointments").insert([dbData]).select();
       if (data) {
         const newAppt = { ...data[0], barberId: data[0].barber_id, createdAt: data[0].created_at };
         setAppointments((prev) => [...prev, newAppt]);
@@ -140,38 +102,27 @@ export function useAppointments() {
       }
     },
     updateAppointment: async (id: string, patch: Partial<Appointment>) => {
-      // Veritabanı için veriyi hazırla (barberId -> barber_id)
       const dbPatch: any = { ...patch };
       if (patch.barberId) {
         dbPatch.barber_id = patch.barberId;
         delete dbPatch.barberId;
       }
-
-      // Güncelleme isteğini gönder
-      const { data, error } = await supabase
-        .from("appointments")
-        .update(dbPatch)
-        .eq("id", id)
-        .select();
-
-      if (error) {
-        console.error("Supabase Güncelleme Hatası:", error);
-        throw error;
-      }
-
+      const { data, error } = await supabase.from("appointments").update(dbPatch).eq("id", id).select();
+      if (error) throw error;
       if (data) {
-        const updated = { 
-          ...data[0], 
-          barberId: data[0].barber_id, 
-          createdAt: data[0].created_at 
-        };
+        const updated = { ...data[0], barberId: data[0].barber_id, createdAt: data[0].created_at };
         setAppointments((prev) => prev.map((a) => (a.id === id ? updated : a)));
       }
     },
+    deleteAppointment: async (id: string) => {
+      await supabase.from("appointments").delete().eq("id", id);
+      setAppointments((prev) => prev.filter((a) => a.id !== id));
+    },
+  }; // Bu süslü parantez objeyi kapatıyor
+} // BU DA FONKSİYONU KAPATIYOR (EKSİK OLAN BUYDU)
 
 export function useOverrides() {
   const [overrides, setOverrides] = useState<DayOverride[]>([]);
-  
   useEffect(() => {
     supabase.from("overrides").select("*").gte("date", todayStr()).then(({ data }) => {
       if (data) {
@@ -185,7 +136,6 @@ export function useOverrides() {
     overrides,
     setOverride: async (o: DayOverride) => {
       await supabase.from("overrides").delete().eq("date", o.date);
-      
       if (o.closed || o.openFrom) {
         const { data } = await supabase.from("overrides").insert([{ date: o.date, closed: o.closed, open_from: o.openFrom }]).select();
         if (data) {
@@ -198,19 +148,12 @@ export function useOverrides() {
         setOverrides((prev) => prev.filter((p) => p.date !== o.date));
       }
     },
-    getOverride: (date: string) => overrides.find((o) => o.date === date),
   };
 }
 
-// Admin şifreleri şimdilik local olarak kalmaya devam ediyor
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
-  try {
-    const v = localStorage.getItem(key);
-    return v ? (JSON.parse(v) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
 }
 function write<T>(key: string, value: T) {
   if (typeof window === "undefined") return;
@@ -226,10 +169,7 @@ function useLocal<T>(key: string, fallback: T) {
     };
     window.addEventListener("sd-store", handler);
     window.addEventListener("storage", handler);
-    return () => {
-      window.removeEventListener("sd-store", handler);
-      window.removeEventListener("storage", handler);
-    };
+    return () => { window.removeEventListener("sd-store", handler); window.removeEventListener("storage", handler); };
   }, [key]);
   const update = useCallback((next: T | ((prev: T) => T)) => {
     const current = read(key, fallback);
@@ -256,10 +196,7 @@ export function useSession() {
     login: (email: string, password: string) => {
       const admins = read<AdminUser[]>(K.admins, [DEFAULT_ADMIN]);
       const match = admins.find((a) => a.email === email && a.password === password);
-      if (match) {
-        setS({ email });
-        return true;
-      }
+      if (match) { setS({ email }); return true; }
       return false;
     },
     logout: () => setS(null),
