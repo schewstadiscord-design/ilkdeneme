@@ -114,19 +114,29 @@ export function useAppointments() {
         const data = await res.json();
         ip = data.ip;
       } catch (e) {
-        console.warn("IP alınamadı, devam ediliyor...");
+
       }
 
-      // 2. IP Limiti Kontrolü (Son 1 saatte max 3 randevu)
+      // 2. IP Limiti Kontrolü (GARANTİLİ YÖNTEM)
       const oneHourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
-      const { count } = await supabase
+      
+      // count yerine datanın kendisini (sadece id'leri) çekiyoruz
+      const { data: pastAppts, error: countError } = await supabase
         .from("appointments")
-        .select("id", { count: 'exact', head: true })
+        .select("id")
         .eq("ip_address", ip)
         .gte("created_at", oneHourAgo);
 
-      if (count !== null && count >= 3) {
-        throw new Error("Çok fazla randevu denemesi yaptınız. Lütfen 1 saat bekleyin.");
+      if (countError) {
+        console.error("IP kontrol hatası:", countError);
+      }
+
+      // Dizinin uzunluğuna bakarak manuel sayıyoruz
+      const limitCount = pastAppts ? pastAppts.length : 0;
+
+      if (limitCount >= 3) {
+        alert("Çok fazla randevu denemesi yaptınız. Lütfen 1 saat bekleyin.");
+        throw new Error("Çok fazla randevu denemesi yaptınız.");
       }
 
       // 3. Randevuyu kaydet
@@ -139,10 +149,16 @@ export function useAppointments() {
         price: a.price, 
         barber_id: a.barberId, 
         note: a.note || null,
-        ip_address: ip // IP adresini de kaydediyoruz
+        ip_address: ip 
       };
       
-      const { data } = await supabase.from("appointments").insert([dbData]).select();
+      const { data, error } = await supabase.from("appointments").insert([dbData]).select();
+      
+      if (error) {
+        console.error("SUPABASE KAYIT HATASI:", error);
+        alert("Randevu Kaydedilemedi! Hata: " + error.message);
+        throw error;
+      }
       
       if (data) {
         const newAppt = { ...data[0], barberId: data[0].barber_id, createdAt: data[0].created_at };
@@ -170,7 +186,6 @@ export function useAppointments() {
   };
 }
 
-// --- İŞTE EKSİK OLAN VE VERCEL'İ PATLATAN KISIM BURASI ---
 export function useOverrides() {
   const [overrides, setOverrides] = useState<DayOverride[]>([]);
   useEffect(() => {
@@ -201,7 +216,6 @@ export function useOverrides() {
     getOverride: (date: string) => overrides.find((o) => o.date === date),
   };
 }
-// ---------------------------------------------------------
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
