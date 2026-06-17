@@ -162,14 +162,22 @@ function AppointmentsTab() {
         </div>
       )}
       {editing && (
-        // KEY PROP'U EKLENDİ (HATAYI ÇÖZEN NOKTA)
-        <EditApptDialog
-          key={editing.id}
-          appt={editing}
-          onClose={() => setEditing(null)}
-          onSave={(patch) => { updateAppointment(editing.id, patch); toast.success("Güncellendi"); setEditing(null); }}
-        />
-      )}
+  <EditApptDialog
+    key={editing.id}
+    appt={editing}
+    onClose={() => setEditing(null)}
+    onSave={async (patch) => {
+  try {
+    await updateAppointment(editing.id, patch);
+    toast.success("Güncellendi");
+    setEditing(null);
+  } catch (err: any) {
+    console.error("Hata detayları:", err);
+    toast.error("Hata: " + (err.message || "İşlem başarısız"));
+  }
+}}
+  />
+)}
     </Card>
   );
 }
