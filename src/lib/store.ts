@@ -134,6 +134,7 @@ export function useAppointments() {
 
 export function useOverrides() {
   const [overrides, setOverrides] = useState<DayOverride[]>([]);
+  
   useEffect(() => {
     supabase.from("overrides").select("*").gte("date", todayStr()).then(({ data }) => {
       if (data) {
@@ -159,6 +160,8 @@ export function useOverrides() {
         setOverrides((prev) => prev.filter((p) => p.date !== o.date));
       }
     },
+    // İŞTE EKSİK OLAN KISIM BURASI:
+    getOverride: (date: string) => overrides.find((o) => o.date === date),
   };
 }
 
