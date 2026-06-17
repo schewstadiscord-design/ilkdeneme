@@ -66,7 +66,10 @@ export function isSlotPast(date: string, time: string) {
 export function useBarbers() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   useEffect(() => {
-    supabase.from("barbers").select("*").then(({ data }) => { if (data) setBarbers(data); });
+    supabase.from("barbers").select("*").then(({ data, error }) => {
+      if (error) console.error("Berberleri çekemedim:", error);
+      if (data) setBarbers(data);
+    });
   }, []);
   return {
     barbers,
@@ -194,12 +197,28 @@ function useLocal<T>(key: string, fallback: T) {
 }
 
 export function useAdmins() {
-  const [list, setList] = useLocal<AdminUser[]>(K.admins, [DEFAULT_ADMIN]);
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+
+  useEffect(() => {
+    supabase.from("admins").select("*").then(({ data }) => {
+      if (data) setAdmins(data as AdminUser[]);
+    });
+  }, []);
+
   return {
-    admins: list,
-    addAdmin: (a: AdminUser) => setList((prev) => [...prev, a]),
-    updateAdmin: (email: string, patch: Partial<AdminUser>) => setList((prev) => prev.map((a) => (a.email === email ? { ...a, ...patch } : a))),
-    removeAdmin: (email: string) => setList((prev) => prev.filter((a) => a.email !== email)),
+    admins,
+    addAdmin: async (a: AdminUser) => {
+      const { data } = await supabase.from("admins").insert([a]).select();
+      if (data) setAdmins((prev) => [...prev, data[0] as AdminUser]);
+    },
+    removeAdmin: async (email: string) => {
+      await supabase.from("admins").delete().eq("email", email);
+      setAdmins((prev) => prev.filter((a) => a.email !== email));
+    },
+    updateAdmin: async (oldEmail: string, patch: Partial<AdminUser>) => {
+      const { data } = await supabase.from("admins").update(patch).eq("email", oldEmail).select();
+      if (data) setAdmins((prev) => prev.map((a) => (a.email === oldEmail ? (data[0] as AdminUser) : a)));
+    },
   };
 }
 
