@@ -226,10 +226,28 @@ export function useSession() {
   const [s, setS] = useLocal<{ email: string } | null>(K.session, null);
   return {
     session: s,
-    login: (email: string, password: string) => {
-      const admins = read<AdminUser[]>(K.admins, [DEFAULT_ADMIN]);
-      const match = admins.find((a) => a.email === email && a.password === password);
-      if (match) { setS({ email }); return true; }
+    // LOGIN İŞLEMİNİ ASYNC YAPIYORUZ
+    login: async (email: string, password: string) => {
+      // Artık localStorage'a değil, direkt Supabase'e soruyoruz
+      const { data, error } = await supabase
+        .from("admins")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
+
+      if (data) {
+        setS({ email }); // Başarılıysa session'ı başlat
+        return true;
+      }
+      
+      // Eğer veritabanında bulamazsa, belki varsayılan admin'dir diye bir de ona bakalım (opsiyonel)
+      if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
+        setS({ email });
+        return true;
+      }
+
+      console.error("Giriş hatası:", error);
       return false;
     },
     logout: () => setS(null),
