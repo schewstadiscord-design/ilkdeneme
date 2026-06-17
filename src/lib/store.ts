@@ -107,8 +107,43 @@ export function useAppointments() {
   return {
     appointments,
     addAppointment: async (a: Omit<Appointment, "id" | "createdAt">) => {
-      const dbData = { name: a.name, phone: a.phone, date: a.date, time: a.time, service: a.service, price: a.price, barber_id: a.barberId, note: a.note || null };
+      // 1. IP Adresini çekiyoruz
+      let ip = "unknown";
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        ip = data.ip;
+      } catch (e) {
+        console.warn("IP alınamadı, devam ediliyor...");
+      }
+
+      // 2. IP Limiti Kontrolü (Son 1 saatte max 3 randevu)
+      const oneHourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
+      const { count } = await supabase
+        .from("appointments")
+        .select("id", { count: 'exact', head: true })
+        .eq("ip_address", ip)
+        .gte("created_at", oneHourAgo);
+
+      if (count !== null && count >= 3) {
+        throw new Error("Çok fazla randevu denemesi yaptınız. Lütfen 1 saat bekleyin.");
+      }
+
+      // 3. Randevuyu kaydet
+      const dbData = { 
+        name: a.name, 
+        phone: a.phone, 
+        date: a.date, 
+        time: a.time, 
+        service: a.service, 
+        price: a.price, 
+        barber_id: a.barberId, 
+        note: a.note || null,
+        ip_address: ip // IP adresini de kaydediyoruz
+      };
+      
       const { data } = await supabase.from("appointments").insert([dbData]).select();
+      
       if (data) {
         const newAppt = { ...data[0], barberId: data[0].barber_id, createdAt: data[0].created_at };
         setAppointments((prev) => [...prev, newAppt]);
@@ -132,39 +167,6 @@ export function useAppointments() {
       await supabase.from("appointments").delete().eq("id", id);
       setAppointments((prev) => prev.filter((a) => a.id !== id));
     },
-  }; // <--- BURASI KAPANIYOR
-} // <--- VE BURASI DA KAPANIYOR (EKSİK OLAN BUYDU)
-
-export function useOverrides() {
-  const [overrides, setOverrides] = useState<DayOverride[]>([]);
-  
-  useEffect(() => {
-    supabase.from("overrides").select("*").gte("date", todayStr()).then(({ data }) => {
-      if (data) {
-        const mapped = data.map((d) => ({ ...d, openFrom: d.open_from }));
-        setOverrides(mapped);
-      }
-    });
-  }, []);
-
-  return {
-    overrides,
-    setOverride: async (o: DayOverride) => {
-      await supabase.from("overrides").delete().eq("date", o.date);
-      if (o.closed || o.openFrom) {
-        const { data } = await supabase.from("overrides").insert([{ date: o.date, closed: o.closed, open_from: o.openFrom }]).select();
-        if (data) {
-          setOverrides((prev) => {
-            const without = prev.filter((p) => p.date !== o.date);
-            return [...without, { ...data[0], openFrom: data[0].open_from }];
-          });
-        }
-      } else {
-        setOverrides((prev) => prev.filter((p) => p.date !== o.date));
-      }
-    },
-    // İŞTE EKSİK OLAN KISIM BURASI:
-    getOverride: (date: string) => overrides.find((o) => o.date === date),
   };
 }
 
