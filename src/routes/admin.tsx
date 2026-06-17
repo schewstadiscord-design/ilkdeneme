@@ -107,6 +107,13 @@ function AppointmentsTab() {
 
   const barberName = (id: string) => barbers.find((b) => b.id === id)?.name ?? "—";
 
+  // SİLME İŞLEMİNİ GÜVENLİ HALE GETİRDİK
+  const safeDelete = async (id: string) => {
+    if (!confirm("Bu randevuyu silmek istediğine emin misin?")) return;
+    await deleteAppointment(id);
+    toast.success("Silindi");
+  };
+
   return (
     <Card className="bg-card border-border p-0 overflow-hidden">
       {sorted.length === 0 ? (
@@ -115,12 +122,9 @@ function AppointmentsTab() {
         <div className="divide-y divide-border">
           {sorted.map((a) => (
             <div key={a.id} className="p-4">
-              {/* 1. İsim ve Telefon (Çizgi ile ayrıldı) */}
               <div className="font-bold text-lg mb-3">
                 {a.name} <span className="text-muted-foreground mx-2 font-normal">-</span> {a.phone}
               </div>
-
-              {/* 2. Okunaklı ve Sade Bilgi Bloğu */}
               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm mb-3">
                 <div>
                   <div className="text-[10px] text-muted-foreground uppercase font-bold">TARİH</div>
@@ -140,17 +144,16 @@ function AppointmentsTab() {
                 </div>
               </div>
               
-              {/* 3. Not Kısmı */}
               {a.note && (
                 <div className="mb-3 p-2 bg-input rounded text-sm italic border-l-4 border-primary">
                   {a.note}
                 </div>
               )}
 
-              {/* İşlem Butonları */}
               <div className="flex gap-2 justify-end">
                 <Button size="sm" variant="outline" onClick={() => setEditing(a)}><Pencil className="w-4 h-4 mr-1" /> Düzenle</Button>
-                <Button size="sm" variant="destructive" onClick={() => { deleteAppointment(a.id); toast.success("Silindi"); }}>
+                {/* YENİ SİLME BUTONU BURADA */}
+                <Button size="sm" variant="destructive" onClick={() => safeDelete(a.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -159,7 +162,9 @@ function AppointmentsTab() {
         </div>
       )}
       {editing && (
+        // KEY PROP'U EKLENDİ (HATAYI ÇÖZEN NOKTA)
         <EditApptDialog
+          key={editing.id}
           appt={editing}
           onClose={() => setEditing(null)}
           onSave={(patch) => { updateAppointment(editing.id, patch); toast.success("Güncellendi"); setEditing(null); }}
