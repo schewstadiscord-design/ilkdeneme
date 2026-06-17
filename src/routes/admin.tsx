@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react"; // Hepsi burada birleşti
+import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,27 +20,17 @@ import {
   useSession,
   type Appointment,
 } from "@/lib/store";
+
 function ClientOnly({ children }: { children: React.ReactNode }) {
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => { setHasMounted(true); }, []);
   if (!hasMounted) return null;
   return <>{children}</>;
 }
-import {
-  SERVICES,
-  generateTimeSlots,
-  todayStr,
-  useAdmins,
-  useAppointments,
-  useBarbers,
-  useOverrides,
-  useSession,
-  type Appointment,
-} from "@/lib/store";
 
 export const Route = createFileRoute("/admin")({
- head: () => ({ meta: [{ title: "Admin · Saloon Deep" }] }),
- component: AdminPage,
+  head: () => ({ meta: [{ title: "Admin · Saloon Deep" }] }),
+  component: AdminPage,
 });
 
 function AdminPage() {
@@ -124,7 +114,6 @@ function AppointmentsTab() {
 
   const barberName = (id: string) => barbers.find((b) => b.id === id)?.name ?? "—";
 
-  // SİLME İŞLEMİNİ GÜVENLİ HALE GETİRDİK
   const safeDelete = async (id: string) => {
     if (!confirm("Bu randevuyu silmek istediğine emin misin?")) return;
     await deleteAppointment(id);
@@ -143,60 +132,38 @@ function AppointmentsTab() {
                 {a.name} <span className="text-muted-foreground mx-2 font-normal">-</span> {a.phone}
               </div>
               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm mb-3">
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase font-bold">TARİH</div>
-                  <div className="font-medium">{a.date}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase font-bold">SAAT</div>
-                  <div className="font-bold text-lg">{a.time}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase font-bold">HİZMET</div>
-                  <div className="font-medium">{a.service} ({a.price}TL)</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase font-bold">BERBER</div>
-                  <div className="font-medium">{barberName(a.barberId)}</div>
-                </div>
+                <div><div className="text-[10px] text-muted-foreground uppercase font-bold">TARİH</div><div className="font-medium">{a.date}</div></div>
+                <div><div className="text-[10px] text-muted-foreground uppercase font-bold">SAAT</div><div className="font-bold text-lg">{a.time}</div></div>
+                <div><div className="text-[10px] text-muted-foreground uppercase font-bold">HİZMET</div><div className="font-medium">{a.service} ({a.price}TL)</div></div>
+                <div><div className="text-[10px] text-muted-foreground uppercase font-bold">BERBER</div><div className="font-medium">{barberName(a.barberId)}</div></div>
               </div>
-              
-              {a.note && (
-                <div className="mb-3 p-2 bg-input rounded text-sm italic border-l-4 border-primary">
-                  {a.note}
-                </div>
-              )}
-
+              {a.note && (<div className="mb-3 p-2 bg-input rounded text-sm italic border-l-4 border-primary">{a.note}</div>)}
               <div className="flex gap-2 justify-end">
                 <Button size="sm" variant="outline" onClick={() => setEditing(a)}><Pencil className="w-4 h-4 mr-1" /> Düzenle</Button>
-                {/* YENİ SİLME BUTONU BURADA */}
-                <Button size="sm" variant="destructive" onClick={() => safeDelete(a.id)}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <Button size="sm" variant="destructive" onClick={() => safeDelete(a.id)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
           ))}
         </div>
       )}
       {editing && (
-  {editing && (
-  <ClientOnly>
-    <EditApptDialog
-      key={editing.id}
-      appt={editing}
-      onClose={() => setEditing(null)}
-      onSave={async (patch) => {
-        try {
-          await updateAppointment(editing.id, patch);
-          toast.success("Güncellendi");
-          setEditing(null);
-        } catch (err: any) {
-          toast.error("Hata: " + (err.message || "İşlem yapılamadı"));
-        }
-      }}
-    />
-  </ClientOnly>
-)}
+        <ClientOnly>
+          <EditApptDialog
+            key={editing.id}
+            appt={editing}
+            onClose={() => setEditing(null)}
+            onSave={async (patch) => {
+              try {
+                await updateAppointment(editing.id, patch);
+                toast.success("Güncellendi");
+                setEditing(null);
+              } catch (err: any) {
+                toast.error("Hata: " + (err.message || "İşlem yapılamadı"));
+              }
+            }}
+          />
+        </ClientOnly>
+      )}
     </Card>
   );
 }
@@ -287,10 +254,7 @@ function ScheduleTab() {
       <div>
         <h3 className="font-display text-lg mb-3">Gün Yönetimi</h3>
         <div className="grid sm:grid-cols-3 gap-3 items-end">
-          <div>
-            <Label>Tarih</Label>
-            <Input type="date" min={todayStr()} value={date} onChange={(e) => setDate(e.target.value)} className="bg-input mt-1" />
-          </div>
+          <div><Label>Tarih</Label><Input type="date" min={todayStr()} value={date} onChange={(e) => setDate(e.target.value)} className="bg-input mt-1" /></div>
           <div>
             <Label>Açılış saati (opsiyonel)</Label>
             <Select value={openFrom} onValueChange={setOpenFrom}>
@@ -311,8 +275,7 @@ function ScheduleTab() {
           {overrides.map((o) => (
             <div key={o.date} className="flex items-center justify-between p-3 rounded-md bg-input">
               <div className="text-sm">
-                <span className="font-semibold">{o.date}</span>{" — "}
-                {o.closed ? <span className="text-destructive">Kapalı</span> : <span>Açılış: {o.openFrom}</span>}
+                <span className="font-semibold">{o.date}</span> — {o.closed ? <span className="text-destructive">Kapalı</span> : <span>Açılış: {o.openFrom}</span>}
               </div>
               <Button size="sm" variant="outline" onClick={() => setOverride({ date: o.date })}>Kaldır</Button>
             </div>
@@ -330,7 +293,6 @@ function ProfileTab({ currentEmail }: { currentEmail: string }) {
   const me = admins.find((a) => a.email === currentEmail);
   const [editEmail, setEditEmail] = useState(me?.email ?? "");
   const [editPass, setEditPass] = useState(me?.password ?? "");
-
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card className="bg-card border-border p-6">
