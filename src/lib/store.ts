@@ -170,6 +170,39 @@ export function useAppointments() {
   };
 }
 
+// --- İŞTE EKSİK OLAN VE VERCEL'İ PATLATAN KISIM BURASI ---
+export function useOverrides() {
+  const [overrides, setOverrides] = useState<DayOverride[]>([]);
+  useEffect(() => {
+    supabase.from("overrides").select("*").gte("date", todayStr()).then(({ data }) => {
+      if (data) {
+        const mapped = data.map((d) => ({ ...d, openFrom: d.open_from }));
+        setOverrides(mapped);
+      }
+    });
+  }, []);
+
+  return {
+    overrides,
+    setOverride: async (o: DayOverride) => {
+      await supabase.from("overrides").delete().eq("date", o.date);
+      if (o.closed || o.openFrom) {
+        const { data } = await supabase.from("overrides").insert([{ date: o.date, closed: o.closed, open_from: o.openFrom }]).select();
+        if (data) {
+          setOverrides((prev) => {
+            const without = prev.filter((p) => p.date !== o.date);
+            return [...without, { ...data[0], openFrom: data[0].open_from }];
+          });
+        }
+      } else {
+        setOverrides((prev) => prev.filter((p) => p.date !== o.date));
+      }
+    },
+    getOverride: (date: string) => overrides.find((o) => o.date === date),
+  };
+}
+// ---------------------------------------------------------
+
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
@@ -228,9 +261,7 @@ export function useSession() {
   const [s, setS] = useLocal<{ email: string } | null>(K.session, null);
   return {
     session: s,
-    // LOGIN İŞLEMİNİ ASYNC YAPIYORUZ
     login: async (email: string, password: string) => {
-      // Artık localStorage'a değil, direkt Supabase'e soruyoruz
       const { data, error } = await supabase
         .from("admins")
         .select("*")
@@ -239,11 +270,10 @@ export function useSession() {
         .single();
 
       if (data) {
-        setS({ email }); // Başarılıysa session'ı başlat
+        setS({ email });
         return true;
       }
       
-      // Eğer veritabanında bulamazsa, belki varsayılan admin'dir diye bir de ona bakalım (opsiyonel)
       if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
         setS({ email });
         return true;
