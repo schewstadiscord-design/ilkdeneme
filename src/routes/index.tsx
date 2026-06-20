@@ -11,6 +11,8 @@ import {
   Award,
   Quote,
   CheckCircle2,
+  Instagram,
+  AtSign,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,24 @@ import { BookingModal } from "@/components/BookingModal";
 import heroImg from "@/assets/hero-barbershop.jpg";
 import aboutImage from "@/assets/about-barber.jpg";
 
+function TikTok(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+  );
+}
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -236,7 +256,7 @@ function About() {
   const points = [
     "Deneyimli ve özenli usta",
     "Steril ve modern ekipman",
-    "Çocuk tıraşında uzmanlık",
+    "Yeni nesil tıraşlarda uzmanlık",
     "Kişiye özel danışmanlık",
   ];
   return (
@@ -268,6 +288,34 @@ function About() {
               </li>
             ))}
           </ul>
+          
+          {/* Sosyal Medya Alanı */}
+          <div className="mt-10 border-t border-border/60 pt-8">
+            <p className="mb-5 text-sm font-medium tracking-wide text-muted-foreground uppercase">
+              Bizi Sosyal Medyada Takip Edin
+            </p>
+            <div className="flex gap-4">
+              <a
+                href="https://www.instagram.com/saloondeepp/"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+              >
+                <Instagram className="h-4 w-4 transition-transform group-hover:scale-110" />
+                Instagram
+              </a>
+              <a
+                href="https://www.tiktok.com/@saloondeepp"
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+              >
+                <TikTok className="h-4 w-4 transition-transform group-hover:scale-110" />
+                TikTok
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -319,21 +367,49 @@ function Visit({ onBook }: { onBook: () => void }) {
               Hüseyin Ağa İş Merkezi, Hacıhalil, İsmet Paşa Cd. No:9 Zemin,
               41400 Gebze/Kocaeli
             </InfoRow>
+            
             <InfoRow icon={Phone} title="Telefon">
               <a href="tel:+905438792413" className="hover:text-primary">
                 0543 879 24 13
               </a>
             </InfoRow>
+
+            {/* --- EKLENEN SOSYAL MEDYA SATIRI --- */}
+            <InfoRow icon={AtSign} title="Sosyal Medya">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1">
+                <a
+                  href="https://www.instagram.com/saloondeepp/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Instagram className="h-4 w-4" />
+                  <span>Instagram</span>
+                </a>
+                <span className="text-border">|</span>
+                <a
+                  href="https://www.tiktok.com/@saloondeepp"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <TikTok className="h-4 w-4" />
+                  <span>TikTok</span>
+                </a>
+              </div>
+            </InfoRow>
+
             <InfoRow icon={Clock} title="Çalışma saatleri">
               Pazartesi – Cumartesi · 10:00 – 20:30
               <br />
               Pazar · Kapalı
             </InfoRow>
           </div>
+          
           <div className="mt-10 flex flex-wrap gap-3">
             <Button onClick={onBook} variant="hero">Randevu Al</Button>
             <a
-              href="https://maps.google.com/?q=Saloon+Deep+Gebze"
+              href="https://maps.app.goo.gl/3VKvmqtw2Pemg2wT9"
               target="_blank"
               rel="noreferrer"
             >
@@ -341,6 +417,7 @@ function Visit({ onBook }: { onBook: () => void }) {
             </a>
           </div>
         </div>
+        
         <div className="overflow-hidden rounded-2xl border border-border shadow-card">
           <iframe
             title="Saloon Deep konum"
