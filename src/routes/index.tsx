@@ -156,7 +156,7 @@ function Nav({ onBook }: { onBook: () => void }) {
     <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a href="#top" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Saloon Deep Logo" className="h-6 w-6 object-contain" />
+          <Scissors className="h-5 w-5 text-primary" />
           <span className="font-display text-lg tracking-wide">
             Saloon <span className="text-gradient-gold">Deep</span>
           </span>
@@ -460,7 +460,7 @@ function Footer() {
     <footer className="border-t border-border/60 py-10">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground md:flex-row">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Saloon Deep Logo" className="h-5 w-5 object-contain" />
+          <Scissors className="h-4 w-4 text-primary" />
           <span className="font-display">
             Saloon <span className="text-gradient-gold">Deep</span>
           </span>
