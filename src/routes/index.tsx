@@ -328,7 +328,7 @@ function About() {
                 Instagram
               </a>
               <a
-                href="https://www.tiktok.com/@saloondeepp"
+                href="https://www.tiktok.com/@saloondeep"
                 target="_blank"
                 rel="noreferrer"
                 className="group flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
@@ -411,7 +411,7 @@ function Visit({ onBook }: { onBook: () => void }) {
                 </a>
                 <span className="text-border">|</span>
                 <a
-                  href="https://www.tiktok.com/@saloondeepp"
+                  href="https://www.tiktok.com/@saloondeep"
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
