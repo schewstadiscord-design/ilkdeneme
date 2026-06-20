@@ -43,19 +43,42 @@ function TikTok(props: any) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Saloon Deep — Premium Erkek Kuaförü, Gebze" },
+      // 1. ANA BAŞLIK (Google Arama Sonuçlarındaki Büyük Mavi Yazı)
+      { title: "Saloon Deep | Gebze'nin En İyi Erkek Kuaförü ve Berberi" },
+
+      // 2. VİTRİN AÇIKLAMASI (Başlığın altındaki 2 satırlık açıklama yazısı)
       {
         name: "description",
         content:
-          "Gebze'nin premium erkek kuaförü Saloon Deep. Saç tıraşı, sakal şekillendirme, çocuk tıraşı ve bakım. Online randevu alın: 0543 879 24 13",
+          "Gebze'de premium erkek kuaförü SaloonDeep. Saç tıraşı, sakal şekillendirme, ve modern erkek berberi hizmetleri. Hemen online randevu alın: 0543 879 24 13",
       },
-      { property: "og:title", content: "Saloon Deep — Premium Erkek Kuaförü" },
+
+      // 3. ÖLÜMCÜL ANAHTAR KELİMELER (Müşterilerin Google'a yazdığı kelimeler)
+      {
+        name: "keywords",
+        content:
+          "gebze berber, gebze kuaför, erkek berberi, gebze traş, gebze en iyi berber, saloon deep, kocaeli gebze erkek kuaförü, gebze saç kesimi, gebze sakal traşı",
+      },
+
+      // 4. WHATSAPP & INSTAGRAM ŞOVU (Link atıldığında çıkacak olan görsel kartvizit)
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Saloon Deep" },
+      { property: "og:title", content: "Saloon Deep | Gebze Premium Erkek Kuaförü" },
       {
         property: "og:description",
-        content: "Gebze'de modern ve lüks bir kuaför deneyimi. Online randevu alın.",
+          content: "Gebze'de modern, lüks berber deneyimi. Beklemeden tıraş olmak için online randevunuzu hemen oluşturun.",
       },
       { property: "og:image", content: heroImg },
+      
+      // 5. TWITTER (X) KARTI (Farklı platformlarda da şık durması için)
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Saloon Deep | Gebze Erkek Kuaförü" },
+      { name: "twitter:description", content: "Gebze'de modern ve lüks bir berber deneyimi. Online randevu alın." },
       { name: "twitter:image", content: heroImg },
+
+      // 6. GİZLİ SİLAH: YEREL SEO (Google'a "Biz Kocaeli/Gebze'deyiz" sinyali veren radar kodları)
+      { name: "geo.region", content: "TR-41" },
+      { name: "geo.placename", content: "Gebze" },
     ],
   }),
   component: Index,
