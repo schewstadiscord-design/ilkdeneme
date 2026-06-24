@@ -24,10 +24,10 @@ export type AdminUser = { email: string; password: string };
 const K = { admins: "sd_admins", session: "sd_session" };
 
 export const SERVICES = [
-  { name: "Saç Tıraşı", price: 400 },
-  { name: "Sakal Şekillendirme", price: 200 },
-  { name: "Çocuk Tıraşı", price: 250 },
-  { name: "Cilt & Bakım", price: 400 },
+  { name: "Saç Sakal + Yıkama", price: 800 },
+  { name: "Sakal Şekillendirme", price: 300 },
+  { name: "Saç Tıraşı", price: 500 },
+  { name: "Çocuk Traşı", price: 400 },
 ];
 
 export const DEFAULT_ADMIN: AdminUser = {
@@ -134,7 +134,7 @@ export function useAppointments() {
       // Dizinin uzunluğuna bakarak manuel sayıyoruz
       const limitCount = pastAppts ? pastAppts.length : 0;
 
-      if (limitCount >= 3) {
+      if (limitCount >= 2) {
         alert("⚠️ İP ADRESİNİZDEN ÇOK FAZLA DENEME YAPILDI. \n\nDaha sonra tekrar deneyin.");
         throw new Error("İP ADRESİNİZDEN ÇOK FAZLA DENEME YAPILDI.");
       }

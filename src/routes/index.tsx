@@ -44,7 +44,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       // 1. ANA BAŞLIK (Google Arama Sonuçlarındaki Büyük Mavi Yazı)
-      { title: "Saloon Deep | Gebze'nin En İyi Erkek Kuaförü ve Berberi" },
+      { title: "Saloon Deep | Muhammet Avcı" },
 
       // 2. VİTRİN AÇIKLAMASI (Başlığın altındaki 2 satırlık açıklama yazısı)
       {
@@ -86,30 +86,30 @@ export const Route = createFileRoute("/")({
 
 const SERVICES = [
   {
+    name: "Saç Sakal + Yıkama",
+    desc: "Tam kapsamlı bakım, yıkama ve profesyonel stil dokunuşu.",
+    duration: "45 dk",
+    price: "800₺",
+    icon: Scissors,
+  },
+  {
     name: "Saç Tıraşı",
     desc: "Modern teknik ve klasik anlayışın buluştuğu özenli erkek saç tıraşı.",
     duration: "30 dk",
-    price: "400₺",
-    icon: Scissors,
+    price: "500₺",
+    icon: Sparkles,
   },
   {
     name: "Sakal Şekillendirme",
     desc: "Yüz hatlarınıza özel sakal tasarımı, sıcak havlu ve bakım.",
-    duration: "25 dk",
-    price: "200₺",
-    icon: Sparkles,
+    duration: "30 dk",
+    price: "300₺",
+    icon: Award,
   },
   {
     name: "Çocuk Tıraşı",
     desc: "Sabırlı, güler yüzlü ve özenli çocuk tıraşı deneyimi.",
-    duration: "25 dk",
-    price: "250₺",
-    icon: Award,
-  },
-  {
-    name: "Cilt & Bakım",
-    desc: "Maske, sıcak havlu ve cilt bakımı ile tam yenilenme.",
-    duration: "40 dk",
+    duration: "30 dk",
     price: "400₺",
     icon: Star,
   },
@@ -182,7 +182,8 @@ function Hero({ onBook }: { onBook: () => void }) {
           alt="Saloon Deep iç mekan"
           width={1920}
           height={1280}
-          className="h-full w-full object-cover opacity-50"
+          className="h-full w-full object-cover opacity-60 scale-110 -translate-y-5 md:-translate-y-16"
+          style={{ objectPosition: "center top" }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/20 to-transparent" />
@@ -287,13 +288,14 @@ function About() {
       <div className="mx-auto grid max-w-6xl gap-16 px-6 md:grid-cols-2 md:items-center">
         <div className="relative">
           <div className="absolute -inset-4 rounded-3xl bg-primary/10 blur-2xl" />
-          <img
-            src={aboutImage}
-            alt="Saloon Deep ustası iş başında"
-            width={1200}
-            height={1400}
-            loading="lazy"
-            className="relative aspect-[5/6] w-full rounded-2xl object-cover shadow-card"
+          
+          <video
+            src="/hakkimizda.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="relative aspect-[9/16] w-full rounded-2xl object-cover shadow-card"
           />
         </div>
         <div>

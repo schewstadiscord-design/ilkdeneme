@@ -97,7 +97,7 @@ export function BookingModal({ open, onOpenChange }: { open: boolean; onOpenChan
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Online Randevu</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Bilgilerinizi girin, sizi en kısa sürede arayalım.
+            Lütfen randevu bilgilerinizi eksiksiz doldurun..
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
