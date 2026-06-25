@@ -4,7 +4,7 @@ import { supabase } from "./supabase";
 const notifyBarber = async (action: string, appt: any) => {
   const instanceId = "instance182184";
   const token = "y7bhy830uk11nz77";
-  const barberPhone = "905519472232"; 
+  const barberPhone = "905438792413"; 
   
   // Tarihteki tireleri noktaya çeviriyoruz (Örn: 2026-06-25 -> 2026.06.25)
   const formattedDate = appt.date ? appt.date.replace(/-/g, '.') : "";
