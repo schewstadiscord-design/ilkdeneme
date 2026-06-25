@@ -1,6 +1,36 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "./supabase";
 
+const notifyBarber = async (action: string, appt: any) => {
+  const instanceId = "instance182184";
+  const token = "y7bhy830uk11nz77";
+  const barberPhone = "905519472232"; 
+  
+  // Tarihteki tireleri noktaya çeviriyoruz (Örn: 2026-06-25 -> 2026.06.25)
+  const formattedDate = appt.date ? appt.date.replace(/-/g, '.') : "";
+
+  // Not kısmı: Eğer müşteri bir şey yazdıysa onu, yazmadıysa "-" işaretini alır
+  const noteText = appt.note ? appt.note : "-";
+
+  const msg = `*${action}*\n\n` +
+              `👤 Müşteri: ${appt.name}\n` +
+              `💈 Hizmet: ${appt.service}\n` +
+              `💵 Fiyat: ${appt.price} ₺\n` +
+              `📅 Tarih: ${formattedDate}\n` +
+              `⏰ Saat: ${appt.time}\n` +
+              `📞 Telefon: ${appt.phone}\n` +
+              `📝 Not: _${noteText}_`;
+
+  const url = `https://api.ultramsg.com/${instanceId}/messages/chat`;
+  const params = new URLSearchParams({ token, to: barberPhone, body: msg });
+
+  try {
+    await fetch(url, { method: 'POST', body: params });
+  } catch (e) {
+    console.error("WhatsApp bildirimi gönderilemedi:", e);
+  }
+};
+
 export type Barber = { id: string; name: string };
 export type Appointment = {
   id: string;
@@ -107,20 +137,15 @@ export function useAppointments() {
   return {
     appointments,
     addAppointment: async (a: Omit<Appointment, "id" | "createdAt">) => {
-      // 1. IP Adresini çekiyoruz
       let ip = "unknown";
       try {
         const res = await fetch('https://api.ipify.org?format=json');
         const data = await res.json();
         ip = data.ip;
-      } catch (e) {
+      } catch (e) {}
 
-      }
-
-      // 2. IP Limiti Kontrolü (GARANTİLİ YÖNTEM)
       const oneHourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
       
-      // count yerine datanın kendisini (sadece id'leri) çekiyoruz
       const { data: pastAppts, error: countError } = await supabase
         .from("appointments")
         .select("id")
@@ -131,7 +156,6 @@ export function useAppointments() {
         console.error("IP kontrol hatası:", countError);
       }
 
-      // Dizinin uzunluğuna bakarak manuel sayıyoruz
       const limitCount = pastAppts ? pastAppts.length : 0;
 
       if (limitCount >= 2) {
@@ -139,7 +163,6 @@ export function useAppointments() {
         throw new Error("İP ADRESİNİZDEN ÇOK FAZLA DENEME YAPILDI.");
       }
 
-      // 3. Randevuyu kaydet
       const dbData = { 
         name: a.name, 
         phone: a.phone, 
@@ -163,6 +186,10 @@ export function useAppointments() {
       if (data) {
         const newAppt = { ...data[0], barberId: data[0].barber_id, createdAt: data[0].created_at };
         setAppointments((prev) => [...prev, newAppt]);
+        
+        // 1. TETİKLEYİCİ: RANDEVU ALINDI BİLDİRİMİ
+        await notifyBarber("🟢 YENİ RANDEVU", newAppt);
+        
         return newAppt;
       }
     },
@@ -177,11 +204,22 @@ export function useAppointments() {
       if (data) {
         const updated = { ...data[0], barberId: data[0].barber_id, createdAt: data[0].created_at };
         setAppointments((prev) => prev.map((a) => (a.id === id ? updated : a)));
+        
+        // 2. TETİKLEYİCİ: RANDEVU GÜNCELLENDİ BİLDİRİMİ
+        await notifyBarber("🟠 RANDEVU GÜNCELLENDİ", updated);
       }
     },
     deleteAppointment: async (id: string) => {
+      // Silme işleminden önce randevu detaylarını bulup saklıyoruz
+      const target = appointments.find((a) => a.id === id);
+      
       await supabase.from("appointments").delete().eq("id", id);
       setAppointments((prev) => prev.filter((a) => a.id !== id));
+      
+      // 3. TETİKLEYİCİ: RANDEVU İPTAL EDİLDİ BİLDİRİMİ
+      if (target) {
+        await notifyBarber("🔴 RANDEVU SİLİNDİ", target);
+      }
     },
   };
 }
